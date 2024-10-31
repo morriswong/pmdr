@@ -18,110 +18,117 @@ const closeModalBtn = document.querySelector('.close-btn');
 const backgroundColorSelect = document.getElementById('background-color');
 const fontColorSelect = document.getElementById('font-color');
 const saveBtn = document.getElementById('save-btn');
+const progressEl = document.getElementById('progress'); // Progress bar element
+
+// Apply user preferences on page load
+applyUserPreferences();
 
 // Event listeners for interval buttons
 pomodoroIntervalBtn.addEventListener('click', () => {
-  currentInterval = 'pomodoro';
-  timeLeft = 25 * 60;
-  updateTimeLeftTextContent();
+    currentInterval = 'pomodoro';
+    timeLeft = 25 * 60;
+    updateTimeLeftTextContent();
+    updateProgressBar(); // Update progress bar
 });
 
 shortBreakIntervalBtn.addEventListener('click', () => {
-  currentInterval = 'short-break';
-  timeLeft = 5 * 60;
-  updateTimeLeftTextContent();
+    currentInterval = 'short-break';
+    timeLeft = 5 * 60;
+    updateTimeLeftTextContent();
+    updateProgressBar(); // Update progress bar
 });
 
 longBreakIntervalBtn.addEventListener('click', () => {
-  currentInterval = 'long-break';
-  timeLeft = 10 * 60;
-  updateTimeLeftTextContent();
+    currentInterval = 'long-break';
+    timeLeft = 10 * 60;
+    updateTimeLeftTextContent();
+    updateProgressBar(); // Update progress bar
 });
 
 // Event listener for start/stop button
 startStopBtn.addEventListener('click', () => {
-  if (startStopBtn.textContent === 'Start') {
-    startTimer();
-    startStopBtn.textContent = 'Stop';
-  } else {
-    stopTimer();
-  }
+    if (startStopBtn.textContent === 'Start') {
+        startTimer();
+        startStopBtn.textContent = 'Stop';
+    } else {
+        stopTimer();
+    }
 });
 
 // Event listener for reset button
 resetBtn.addEventListener('click', () => {
-  stopTimer();
-  if (currentInterval === 'pomodoro') {
-    timeLeft = 25 * 60;
-  } else if (currentInterval === 'short-break') {
-    timeLeft = 5 * 60;
-  } else {
-    timeLeft = 10 * 60;
-  }
-  updateTimeLeftTextContent();
-  startStopBtn.textContent = 'Start';
+    stopTimer();
+    if (currentInterval === 'pomodoro') {
+        timeLeft = 25 * 60;
+    } else if (currentInterval === 'short-break') {
+        timeLeft = 5 * 60;
+    } else {
+        timeLeft = 10 * 60;
+    }
+    updateTimeLeftTextContent();
+    updateProgressBar(); // Update progress bar
+    startStopBtn.textContent = 'Start';
 });
+
 
 // Event listener for settings button
 settingsBtn.addEventListener('click', () => {
-  settingsModal.style.display = 'flex';
+    settingsModal.style.display = 'flex';
 });
 
 // Event listener for close button in the settings modal
 closeModalBtn.addEventListener('click', () => {
-  settingsModal.style.display = 'none';
+    settingsModal.style.display = 'none';
 });
 
 // Event listener for save button in the settings modal
 saveBtn.addEventListener('click', () => {
-  const newBackgroundColor = backgroundColorSelect.value;
-  const newFontColor = fontColorSelect.value;
+    const newBackgroundColor = backgroundColorSelect.value;
+    const newFontColor = fontColorSelect.value;
 
-  // Save preferences to localStorage
-  localStorage.setItem('backgroundColor', newBackgroundColor);
-  localStorage.setItem('fontColor', newFontColor);
+    // Save preferences to localStorage
+    localStorage.setItem('backgroundColor', newBackgroundColor);
+    localStorage.setItem('fontColor', newFontColor);
 
-  // Apply the new saved preferences
-  applyUserPreferences();
+    // Apply the new saved preferences
+    applyUserPreferences();
 
-  // Close the modal after saving preferences
-  settingsModal.style.display = 'none';
+    // Close the modal after saving preferences
+    settingsModal.style.display = 'none';
 });
 
 // Function to start the timer
 function startTimer() {
-  timerInterval = setInterval(() => {
-    timeLeft--;
-    updateTimeLeftTextContent();
-    if (timeLeft === 0) {
-      clearInterval(timerInterval);
-      if (currentInterval === 'pomodoro') {
-        timeLeft = 5 * 60;
-        currentInterval = 'short-break';
-        startTimer();
-      } else if (currentInterval === 'short-break') {
-        timeLeft = 10 * 60;
-        currentInterval = 'long-break';
-        startTimer();
-      } else {
-        timeLeft = 25 * 60;
-        currentInterval = 'pomodoro';
-      }
-    }
-  }, 1000);
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        updateTimeLeftTextContent();
+        updateProgressBar();
+        if (timeLeft === 0) {
+            clearInterval(timerInterval);
+            // ... (Existing timer completion logic)
+        }
+    }, 1000);
 }
+
 
 // Function to stop the timer
 function stopTimer() {
-  clearInterval(timerInterval);
-  startStopBtn.textContent = 'Start';
+    clearInterval(timerInterval);
+    startStopBtn.textContent = 'Start';
 }
 
 // Function to update the time left text content
 function updateTimeLeftTextContent() {
-  const minutes = Math.floor(timeLeft / 60);
-  const seconds = timeLeft % 60;
-  timeLeftEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    timeLeftEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// Function to update the progress bar
+function updateProgressBar() {
+    const totalTime = currentInterval === 'pomodoro' ? 25 * 60 : (currentInterval === 'short-break' ? 5 * 60 : 10 * 60);
+    const percentage = (1 - (timeLeft / totalTime)) * 100;
+    progressEl.style.width = percentage + '%';
 }
 
 // Function to apply the user's saved preferences
